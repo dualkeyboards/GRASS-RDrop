@@ -115,6 +115,6 @@ async def connect_to_wss(proxy_url, device_id, user_id, stats, removed_proxies, 
             break
         except Exception as e:
             await handle_generic_error(proxy_url, removed_proxies, retry_counts, e)
-            if retry_counts.get(proxy_url, 0) >= 5:
+            if retry_counts.get(proxy_url, 0) >= 2:
                 break 
             await asyncio.sleep(10)

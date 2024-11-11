@@ -40,11 +40,11 @@ async def handle_generic_error(proxy_url, removed_proxies, retry_counts, e):
             retry_counts[proxy_url] = retry_counts.get(proxy_url, 0) + 1
             update_file("proxies_error.txt", proxy_url)
 
-            if retry_counts[proxy_url] >= 5:
+            if retry_counts[proxy_url] >= 2:
                 logger.warning(f"Removing - {proxy_ip}")
                 del retry_counts[proxy_url]
             else:
-                logger.warning(f"Retrying proxy {proxy_ip}, attempt {retry_counts[proxy_url]} / 5 ")
+                logger.warning(f"Retrying proxy {proxy_ip}, attempt {retry_counts[proxy_url]} / 2 ")
             return
 
     logger.error(f"Unexpected error - {proxy_ip}: {e}")
