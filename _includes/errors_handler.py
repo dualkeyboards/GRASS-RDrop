@@ -2,7 +2,7 @@
 from loguru import logger
 from _includes.proxies_manager import update_file, get_proxy_name
 
-async def handle_generic_error(proxy_url, removed_proxies, retry_counts, e):
+async def handle_generic_error(proxy_url, removed_proxies, retry_counts, e):  # Add retry_counts
     proxy_ip = get_proxy_name(proxy_url)
     error_messages = {
         "Connection closed unexpectedly": f"Connection closed unexpectedly - {proxy_ip}",
@@ -13,7 +13,7 @@ async def handle_generic_error(proxy_url, removed_proxies, retry_counts, e):
         "Proxy connection timed out": f"Proxy connection timed out - {proxy_ip}",
         "Request rejected or failed": f"Request rejected or failed - {proxy_ip}",
         "Server rejected WebSocket connection: HTTP 404": f"Request rejected by server - {proxy_ip}",
-        "server rejected WebSocket connection: HTTP 200": f"Request rejected by server - {proxy_ip}",
+        "server rejected WebSocket connection: HTTP 200": f"Request rejected by server - {proxy_ip}",  # Duplicate but lowercase start
         "TTL expired": f"TTL Expired - {proxy_ip}",
         "[SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1000)": f"SSL wrong version number - {proxy_ip}",
         "307": f"Temporary redirect - {proxy_ip}",
@@ -37,14 +37,15 @@ async def handle_generic_error(proxy_url, removed_proxies, retry_counts, e):
     for error_string, log_message in error_messages.items():
         if error_string in str(e):
             logger.error(log_message)
-            retry_counts[proxy_url] = retry_counts.get(proxy_url, 0) + 1
+            retry_counts[proxy_url] = retry_counts.get(proxy_url, 0) + 1  # Increment retry count
             update_file("proxies_error.txt", proxy_url)
 
-            if retry_counts[proxy_url] >= 2:
-                logger.warning(f"Removing - {proxy_ip}")
-                del retry_counts[proxy_url]
+            if retry_counts[proxy_url] >= 2: #Check retry count
+                logger.warning(f"Removing proxy {proxy_ip} after 2 retries.")
+                removed_proxies[0] += 1
+                # Optionally remove the proxy from your list here if you're maintaining one
             else:
                 logger.warning(f"Retrying proxy {proxy_ip}, attempt {retry_counts[proxy_url]} / 2 ")
-            return
+            return  # Exit after handling
 
-    logger.error(f"Unexpected error - {proxy_ip}: {e}")
+    logger.error(f"Unexpected error - {proxy_ip}: {e}")  # Handle unexpected errors

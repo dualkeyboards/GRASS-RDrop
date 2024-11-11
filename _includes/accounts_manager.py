@@ -1,4 +1,4 @@
-# _includes/accounts.py
+# _includes/accounts_manager.py
 import inquirer
 from loguru import logger
 
